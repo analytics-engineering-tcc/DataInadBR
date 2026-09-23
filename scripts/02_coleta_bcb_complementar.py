@@ -23,16 +23,9 @@ def coleta_bcb(serie, descricao, inicio, fim):
     return df
 
 series = [
-    (11,   "Taxa Selic"),
-    #(433,   "IPCA - Inflação"),
-    #(20614, "Comprometimento de renda PF"),
-    #(13521, "Familias com dividas em atraso pct"),
-    #(20539, "Concessoes de credito PF"),
-    #(20541, "Concessoes de credito PJ"),
-    #(7384,  "Juros cartao de credito"),
-    #(20783, "Spread bancario geral"),
-    (15380, "Provisao devedores duvidosos"),
-    #(15882, "Carteira inadimplente total"),
+    (11,    "Taxa Selic"),
+    (13685, "Provisao para creditos de liquidacao duvidosa"),
+    (15882, "Carteira inadimplente total"),
 ]
 
 for serie, descricao in series:

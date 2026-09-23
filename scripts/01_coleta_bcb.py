@@ -50,7 +50,10 @@ for serie, descricao in series:
     print(f"  CSV salvo em data/bronze/bcb_{serie}.csv")
 
     # salva no PostgreSQL
-    df.to_sql(       schema="bronze",
+    df.to_sql(
+        "bcb_inadimplencia",
+        engine,
+        schema="bronze",
         if_exists="append",
         index=False
     )
