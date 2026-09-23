@@ -26,6 +26,11 @@ series = [
     (11,    "Taxa Selic"),
     (13685, "Provisao para creditos de liquidacao duvidosa"),
     (15882, "Carteira inadimplente total"),
+    (20614, "Comprometimento de renda PF"),
+    (7384,  "Juros cartao de credito"),
+    (20783, "Spread bancario geral"),
+    (20539, "Concessoes de credito PF"),
+    (20541, "Concessoes de credito PJ"),
 ]
 
 for serie, descricao in series:
