@@ -7,15 +7,16 @@ from pathlib import Path
 PROJECT_DIR = Path.home() / "Desktop" / "DataInadBR"
 DBT_DIR = PROJECT_DIR / "inadimplencia_dbt"
 DBT_BIN = PROJECT_DIR / "venv" / "bin" / "dbt"
+PYTHON_BIN = PROJECT_DIR / "venv" / "bin" / "python"
 
 
 @dag(
     dag_id="transformacao_dbt",
-    description="Transforma dados Bronze → Silver → Gold usando dbt",
-    schedule="0 7 5 * *",  # dia 5 de cada mês às 07:00 UTC (1h após coleta)
+    description="Transforma dados Bronze → Silver → Gold e exporta JSONs para o dashboard",
+    schedule="0 7 5 * *",
     start_date=datetime(2025, 1, 1),
     catchup=False,
-    tags=["dbt", "silver", "gold", "transformacao"],
+    tags=["dbt", "silver", "gold", "transformacao", "dashboard"],
 )
 def transformacao_dbt():
 
@@ -49,8 +50,22 @@ def transformacao_dbt():
             raise Exception(f"dbt test falhou:\n{result.stderr}")
         return "dbt test OK"
 
-    # Sequência: primeiro transforma, depois testa
-    dbt_run() >> dbt_test()
+    @task()
+    def exportar_json():
+        """Exporta tabelas Gold para JSONs consumidos pelo dashboard"""
+        result = subprocess.run(
+            [str(PYTHON_BIN), str(PROJECT_DIR / "scripts" / "exportar_gold_json.py")],
+            capture_output=True,
+            text=True,
+        )
+        print(result.stdout)
+        if result.returncode != 0:
+            print(result.stderr)
+            raise Exception(f"Exportação JSON falhou:\n{result.stderr}")
+        return "JSON export OK"
+
+    # Sequência: transforma → testa → exporta
+    dbt_run() >> dbt_test() >> exportar_json()
 
 
 transformacao_dbt()

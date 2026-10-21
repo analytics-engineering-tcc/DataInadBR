@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataInadBR — Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 24px;
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .subtitle {
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+        .kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .kpi-card {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #334155;
+        }
+        .kpi-label {
+            font-size: 12px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+        }
+        .kpi-ref {
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 24px;
+        }
+        .chart-card {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid #334155;
+        }
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        .color-green { color: #4ade80; }
+        .color-red { color: #f87171; }
+        .color-blue { color: #60a5fa; }
+        .color-yellow { color: #fbbf24; }
+        .color-purple { color: #a78bfa; }
+    </style>
+</head>
+<body>
+    <h1>DataInadBR</h1>
+    <p class="subtitle">Monitoramento da Inadimplência no Brasil — Dados Abertos ao Dashboard</p>
+
+    <div class="kpis" id="kpis"></div>
+
+    <div class="charts-grid">
+        <div class="chart-card">
+            <div class="chart-title">Inadimplência PF vs PJ (%)</div>
+            <div class="chart-container"><canvas id="chartInad"></canvas></div>
+        </div>
+        <div class="chart-card">
+            <div class="chart-title">Taxa Selic (%)</div>
+            <div class="chart-container"><canvas id="chartSelic"></canvas></div>
+        </div>
+        <div class="chart-card">
+            <div class="chart-title">Taxa de Desocupação (%)</div>
+            <div class="chart-container"><canvas id="chartDesocupacao"></canvas></div>
+        </div>
+        <div class="chart-card">
+            <div class="chart-title">IPCA — Variação Mensal (%)</div>
+            <div class="chart-container"><canvas id="chartIPCA"></canvas></div>
+        </div>
+        <div class="chart-card">
+            <div class="chart-title">PIB Mensal (R$ milhões)</div>
+            <div class="chart-container"><canvas id="chartPIB"></canvas></div>
+        </div>
+        <div class="chart-card">
+            <div class="chart-title">Rendimento Médio Real (R$)</div>
+            <div class="chart-container"><canvas id="chartRendimento"></canvas></div>
+        </div>
+    </div>
+
+    <script>
+    // Configuração global do Chart.js
+    Chart.defaults.color = '#94a3b8';
+    Chart.defaults.borderColor = '#334155';
+    Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, sans-serif';
+
+    const SERIES_NOMES = {
+        '21082': 'Inadimplência PF',
+        '21112': 'Inadimplência PJ',
+        '13522': 'Inadimplência Total',
+        '11': 'Taxa Selic',
+        '13685': 'Provisão Devedores',
+        '15882': 'Carteira Inadimplente',
+        '20614': 'Comprometimento Renda PF',
+        '7384': 'Juros Cartão de Crédito',
+        '20783': 'Spread Bancário',
+        '20539': 'Concessões Crédito PF',
+        '20541': 'Concessões Crédito PJ'
+    };
+
+    async function carregarDados() {
+        const [fct, kpis] = await Promise.all([
+            fetch('data/fct_inadimplencia_mensal.json').then(r => r.json()),
+            fetch('data/kpis_ultimo_mes.json').then(r => r.json())
+        ]);
+        return { fct, kpis };
+    }
+
+    function formatarValor(valor, decimais = 2) {
+        if (valor == null) return '—';
+        return Number(valor).toLocaleString('pt-BR', {
+            minimumFractionDigits: decimais,
+            maximumFractionDigits: decimais
+        });
+    }
+
+    function formatarMes(dataISO) {
+        const d = new Date(dataISO);
+        return d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
+    }
+
+    function renderKPIs(kpis) {
+        const container = document.getElementById('kpis');
+
+        // KPIs principais
+        const destaques = [
+            { serie: '21082', label: 'Inadimplência PF', sufixo: '%', cor: 'red' },
+            { serie: '21112', label: 'Inadimplência PJ', sufixo: '%', cor: 'red' },
+            { serie: '11', label: 'Taxa Selic', sufixo: '%', cor: 'blue' },
+            { campo: 'taxa_desocupacao', label: 'Desocupação', sufixo: '%', cor: 'yellow' },
+            { campo: 'ipca_variacao', label: 'IPCA Mensal', sufixo: '%', cor: 'purple' },
+        ];
+
+        const mesRef = kpis[0]?.mes_ref;
+        const refLabel = mesRef ? new Date(mesRef).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }) : '';
+
+        destaques.forEach(d => {
+            let valor;
+            if (d.serie) {
+                const reg = kpis.find(k => k.serie === d.serie);
+                valor = reg?.valor_indicador;
+            } else {
+                valor = kpis[0]?.[d.campo];
+            }
+
+            container.innerHTML += `
+                <div class="kpi-card">
+                    <div class="kpi-label">${d.label}</div>
+                    <div class="kpi-value color-${d.cor}">${formatarValor(valor)}${d.sufixo}</div>
+                    <div class="kpi-ref">${refLabel}</div>
+                </div>
+            `;
+        });
+    }
+
+    function criarGraficoLinha(canvasId, labels, datasets) {
+        new Chart(document.getElementById(canvasId), {
+            type: 'line',
+            data: { labels, datasets },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { intersect: false, mode: 'index' },
+                plugins: { legend: { position: 'top' } },
+                scales: {
+                    x: { ticks: { maxTicksAutoSkip: true, maxRotation: 0 } },
+                    y: { beginAtZero: false }
+                },
+                elements: { point: { radius: 0 }, line: { tension: 0.3, borderWidth: 2 } }
+            }
+        });
+    }
+
+    function filtrarSerie(fct, serie) {
+        return fct
+            .filter(r => r.serie === serie)
+            .sort((a, b) => a.mes_ref.localeCompare(b.mes_ref));
+    }
+
+    function renderCharts(fct) {
+        // Labels de meses (usa série 21082 como referência)
+        const pf = filtrarSerie(fct, '21082');
+        const pj = filtrarSerie(fct, '21112');
+        const selic = filtrarSerie(fct, '11');
+        const labels = pf.map(r => formatarMes(r.mes_ref));
+
+        // 1. Inadimplência PF vs PJ
+        criarGraficoLinha('chartInad', labels, [
+            { label: 'PF', data: pf.map(r => r.valor_indicador), borderColor: '#f87171', backgroundColor: '#f8717133' },
+            { label: 'PJ', data: pj.map(r => r.valor_indicador), borderColor: '#60a5fa', backgroundColor: '#60a5fa33' }
+        ]);
+
+        // 2. Selic
+        const selicLabels = selic.map(r => formatarMes(r.mes_ref));
+        criarGraficoLinha('chartSelic', selicLabels, [
+            { label: 'Selic', data: selic.map(r => r.valor_indicador), borderColor: '#60a5fa', backgroundColor: '#60a5fa33' }
+        ]);
+
+        // 3. Desocupação
+        criarGraficoLinha('chartDesocupacao', labels, [
+            { label: 'Desocupação', data: pf.map(r => r.taxa_desocupacao), borderColor: '#fbbf24', backgroundColor: '#fbbf2433' }
+        ]);
+
+        // 4. IPCA
+        criarGraficoLinha('chartIPCA', labels, [
+            { label: 'IPCA', data: pf.map(r => r.ipca_variacao), borderColor: '#a78bfa', backgroundColor: '#a78bfa33' }
+        ]);
+
+        // 5. PIB
+        criarGraficoLinha('chartPIB', labels, [
+            { label: 'PIB', data: pf.map(r => r.pib_mensal), borderColor: '#4ade80', backgroundColor: '#4ade8033' }
+        ]);
+
+        // 6. Rendimento
+        criarGraficoLinha('chartRendimento', labels, [
+            { label: 'Rendimento Real', data: pf.map(r => r.rendimento_real), borderColor: '#fb923c', backgroundColor: '#fb923c33' }
+        ]);
+    }
+
+    // Inicializar
+    carregarDados().then(({ fct, kpis }) => {
+        renderKPIs(kpis);
+        renderCharts(fct);
+    });
+    </script>
+</body>
+</html>
