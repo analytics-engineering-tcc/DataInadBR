@@ -1,0 +1,43 @@
+version: 2
+
+sources:
+  - name: bronze
+    database: inadimplencia
+    schema: bronze
+    description: "Dados brutos coletados das APIs do BCB, IBGE e IPEAdata"
+    tables:
+      - name: bcb_inadimplencia
+        description: "Séries temporais do Banco Central (SGS API)"
+        columns:
+          - name: data
+            description: "Data de referência do indicador"
+          - name: valor
+            description: "Valor numérico do indicador"
+          - name: serie
+            description: "Código da série no SGS (ex: 21082, 11)"
+          - name: descricao
+            description: "Nome descritivo da série"
+
+      - name: ibge_indicadores
+        description: "Indicadores do IBGE (IPCA e desocupação)"
+        columns:
+          - name: data
+            description: "Data de referência"
+          - name: valor
+            description: "Valor do indicador"
+          - name: fonte
+            description: "Fonte do dado (IBGE)"
+          - name: indicador
+            description: "Nome do indicador (IPCA variacao mensal, Taxa de desocupacao)"
+
+      - name: ipeadata_indicadores
+        description: "Indicadores do IPEAdata (PIB e rendimento)"
+        columns:
+          - name: data
+            description: "Data de referência"
+          - name: valor
+            description: "Valor do indicador"
+          - name: fonte
+            description: "Fonte do dado (IPEAdata)"
+          - name: indicador
+            description: "Nome do indicador (PIB mensal, Rendimento medio real habitual)"

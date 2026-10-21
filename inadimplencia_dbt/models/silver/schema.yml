@@ -1,0 +1,35 @@
+version: 2
+
+models:
+  - name: stg_bcb_inadimplencia
+    description: "Dados do BCB limpos e tipados"
+    columns:
+      - name: data_ref
+        tests:
+          - not_null
+      - name: valor
+        tests:
+          - not_null
+      - name: serie
+        tests:
+          - not_null
+
+  - name: stg_ibge_indicadores
+    description: "Indicadores IBGE limpos e tipados"
+    columns:
+      - name: data_ref
+        tests:
+          - not_null
+      - name: valor
+        tests:
+          - not_null
+
+  - name: stg_ipeadata_indicadores
+    description: "Indicadores IPEAdata limpos e tipados"
+    columns:
+      - name: data_ref
+        tests:
+          - not_null
+      - name: valor
+        tests:
+          - not_null
