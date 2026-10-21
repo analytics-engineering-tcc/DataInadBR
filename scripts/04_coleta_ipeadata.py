@@ -3,6 +3,7 @@ import pandas as pd
 from sqlalchemy import create_engine
 from dotenv import load_dotenv
 import os
+from datetime import date
 
 load_dotenv()
 
@@ -35,7 +36,7 @@ def coleta_ipeadata(serie_codigo, descricao):
     df["valor"] = pd.to_numeric(df["valor"], errors="coerce")
 
     # filtra período de interesse (2015–2024)
-    df = df[(df["data"] >= "2015-01-01") & (df["data"] <= "2024-12-31")]
+    df = df[(df["data"] >= "2015-01-01") & (df["data"] <= pd.Timestamp.today())]
 
     df["fonte"]     = "IPEAdata"
     df["indicador"] = descricao

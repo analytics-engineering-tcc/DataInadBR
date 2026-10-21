@@ -36,27 +36,23 @@ def exportar():
     print(f"✅ dim_tempo: {len(dim)} registros")
 
     # 3. Resumo para KPIs — últimos valores disponíveis de cada indicador
+    # 3. Resumo para KPIs — último valor disponível de cada série
     kpis = pd.read_sql("""
-        WITH ultimo_mes AS (
-            SELECT MAX(mes_ref) as max_mes FROM gold.fct_inadimplencia_mensal
-        )
-        SELECT
-            f.serie,
-            f.descricao,
-            f.valor_indicador,
-            f.taxa_desocupacao,
-            f.ipca_variacao,
-            f.pib_mensal,
-            f.rendimento_real,
-            f.mes_ref
-        FROM gold.fct_inadimplencia_mensal f
-        JOIN ultimo_mes u ON f.mes_ref = u.max_mes
-        ORDER BY f.serie
+        SELECT DISTINCT ON (serie)
+            serie,
+            descricao,
+            valor_indicador,
+            taxa_desocupacao,
+            ipca_variacao,
+            pib_mensal,
+            rendimento_real,
+            mes_ref
+        FROM gold.fct_inadimplencia_mensal
+        WHERE valor_indicador IS NOT NULL
+        ORDER BY serie, mes_ref DESC
     """, ENGINE)
     kpis.to_json(OUTPUT_DIR / "kpis_ultimo_mes.json", orient="records", date_format="iso", force_ascii=False)
     print(f"✅ kpis_ultimo_mes: {len(kpis)} registros")
-
-    print(f"\n📁 Arquivos exportados em: {OUTPUT_DIR}")
 
 
 if __name__ == "__main__":

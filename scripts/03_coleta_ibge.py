@@ -3,6 +3,7 @@ import pandas as pd
 from sqlalchemy import create_engine
 from dotenv import load_dotenv
 import os
+from datetime import date
 
 load_dotenv()
 
@@ -53,7 +54,7 @@ def coleta_ibge(agregado, variavel, descricao, periodicidade="mensal"):
         df["data"] = pd.to_datetime(df["periodo_original"], format="%Y%m")
 
     # filtra período de interesse (2015–2024)
-    df = df[(df["data"] >= "2015-01-01") & (df["data"] <= "2024-12-31")]
+    df = df[(df["data"] >= "2015-01-01") & (df["data"] <= pd.Timestamp.today())]
 
     df["fonte"]     = "IBGE"
     df["indicador"] = descricao

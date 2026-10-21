@@ -3,6 +3,7 @@ import pandas as pd
 from sqlalchemy import create_engine
 from dotenv import load_dotenv
 import os
+from datetime import date
 
 load_dotenv()
 
@@ -35,7 +36,7 @@ series = [
 
 for serie, descricao in series:
     try:
-        df = coleta_bcb(serie, descricao, "01/01/2015", "31/12/2024")
+        df = coleta_bcb(serie, descricao, "01/01/2015", date.today().strftime("%d/%m/%Y"))
         df.to_csv(f"data/bronze/bcb_{serie}.csv", index=False)
         print(f"  CSV salvo — {len(df)} registros")
         df.to_sql(

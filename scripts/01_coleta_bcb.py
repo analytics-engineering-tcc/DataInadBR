@@ -3,6 +3,7 @@ import pandas as pd
 from sqlalchemy import create_engine
 from dotenv import load_dotenv
 import os
+from datetime import date
 
 # carrega as credenciais do .env
 load_dotenv()
@@ -43,7 +44,7 @@ series = [
 
 # coleta e salva no banco
 for serie, descricao in series:
-    df = coleta_bcb(serie, descricao, "01/01/2015", "31/12/2024")
+    df = coleta_bcb(serie, descricao, "01/01/2015", date.today().strftime("%d/%m/%Y"))
 
     # salva CSV na camada bronze
     df.to_csv(f"data/bronze/bcb_{serie}.csv", index=False)
