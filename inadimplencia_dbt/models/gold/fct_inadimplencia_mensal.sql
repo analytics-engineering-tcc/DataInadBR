@@ -5,7 +5,12 @@ with inadimplencia as (
         mes_ref,
         serie,
         descricao,
-        avg(valor) as valor
+        case
+            when serie = '11' then
+                (exp(sum(ln(1 + valor / 100))) - 1) * 100
+            else
+                avg(valor)
+        end as valor
     from {{ ref('stg_bcb_inadimplencia') }}
     group by mes_ref, serie, descricao
 ),

@@ -4,25 +4,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DataInadBR — Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: #0f172a;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #0a0a0a;
             color: #e2e8f0;
             padding: 24px;
         }
-        h1 {
-            font-size: 24px;
-            font-weight: 600;
+
+        /* Header com logo IFBA */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #1b6b3a44;
+        }
+        .header-logo {
+            width: 56px;
+            height: auto;
+            flex-shrink: 0;
+        }
+        .header-text h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: #ffffff;
             margin-bottom: 4px;
         }
-        .subtitle {
-            color: #94a3b8;
-            font-size: 14px;
-            margin-bottom: 24px;
+        .header-text .tcc-title {
+            color: #8a8a8a;
+            font-size: 13px;
+            line-height: 1.4;
         }
+        .header-text .tcc-subtitle {
+            color: #555;
+            font-size: 11px;
+            margin-top: 2px;
+        }
+        .header-text .tcc-authors {
+            color: #666;
+            font-size: 11px;
+            margin-top: 4px;
+        }
+
+        /* KPIs */
         .kpis {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -30,92 +59,251 @@
             margin-bottom: 32px;
         }
         .kpi-card {
-            background: #1e293b;
+            background: #141414;
             border-radius: 12px;
             padding: 20px;
-            border: 1px solid #334155;
+            border: 1px solid #222;
         }
         .kpi-label {
-            font-size: 12px;
-            color: #94a3b8;
+            font-size: 11px;
+            color: #777;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.8px;
             margin-bottom: 8px;
+            font-weight: 500;
         }
         .kpi-value {
             font-size: 28px;
             font-weight: 700;
         }
+        .kpi-desc {
+            font-size: 10px;
+            color: #555;
+            margin-top: 6px;
+            line-height: 1.4;
+        }
         .kpi-ref {
             font-size: 11px;
-            color: #64748b;
+            color: #555;
             margin-top: 4px;
         }
+
+        /* Cores dos KPIs */
+        .color-green { color: #1b6b3a; }
+        .color-red { color: #c41e3a; }
+        .color-blue { color: #2a78d6; }
+        .color-yellow { color: #d4a017; }
+        .color-purple { color: #8b6fc0; }
+
+        /* Grid de gráficos */
         .charts-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
             gap: 24px;
         }
         .chart-card {
-            background: #1e293b;
+            background: #141414;
             border-radius: 12px;
             padding: 24px;
-            border: 1px solid #334155;
+            border: 1px solid #222;
         }
         .chart-title {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
-            margin-bottom: 16px;
+            margin-bottom: 4px;
+            color: #ccc;
+        }
+        .chart-desc {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 14px;
+            line-height: 1.4;
         }
         .chart-container {
             position: relative;
             height: 300px;
         }
-        .color-green { color: #4ade80; }
-        .color-red { color: #f87171; }
-        .color-blue { color: #60a5fa; }
-        .color-yellow { color: #fbbf24; }
-        .color-purple { color: #a78bfa; }
+
+        /* Seção scatter */
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-top: 40px;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+        .section-subtitle {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+
+        /* Filtros */
+        .filters {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        .filters label {
+            font-size: 13px;
+            color: #777;
+        }
+        .filters select {
+            background: #141414;
+            color: #e2e8f0;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 13px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            cursor: pointer;
+        }
+        .filters button {
+            background: #222;
+            color: #e2e8f0;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            cursor: pointer;
+        }
+        .filters button:hover {
+            background: #333;
+        }
+        .filter-separator {
+            color: #333;
+            font-size: 13px;
+        }
+        .quick-btn {
+            background: #141414 !important;
+            font-weight: 400 !important;
+        }
+        .quick-btn:hover {
+            background: #222 !important;
+        }
+        .quick-btn.active {
+            background: #1b6b3a !important;
+            color: #fff !important;
+            font-weight: 600 !important;
+            border-color: #1b6b3a !important;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 48px;
+            padding-top: 16px;
+            border-top: 1px solid #1a1a1a;
+            text-align: center;
+            color: #444;
+            font-size: 11px;
+        }
     </style>
 </head>
 <body>
-    <h1>DataInadBR</h1>
-    <p class="subtitle">Monitoramento da Inadimplência no Brasil — Dados Abertos ao Dashboard</p>
+    <!-- Header com logo IFBA -->
+    <div class="header">
+        <img src="logo_ifba.png" alt="Logo IFBA" class="header-logo">
+        <div class="header-text">
+            <h1>DataInadBR</h1>
+            <div class="tcc-title">Engenharia de Dados aplicada à Análise e Monitoramento da Inadimplência no Brasil: dos Dados Abertos ao Dashboard</div>
+            <div class="tcc-subtitle">Trabalho de Conclusão de Curso — Bacharelado em Sistemas de Informação — IFBA Campus Vitória da Conquista</div>
+            <div class="tcc-authors">Autora: Caroline Feitosa dos Santos | Orientador: Prof. Dr. Luis Paulo da Silva Carvalho</div>
+        </div>
+    </div>
+
+    <!-- Filtro de período -->
+    <div class="filters">
+        <label>De:</label>
+        <select id="filtroInicio"></select>
+        <label>Até:</label>
+        <select id="filtroFim"></select>
+        <button id="btnFiltrar">Filtrar</button>
+        <span class="filter-separator">|</span>
+        <button class="quick-btn" data-years="3">3 anos</button>
+        <button class="quick-btn" data-years="5">5 anos</button>
+        <button class="quick-btn active" data-years="0">Tudo</button>
+    </div>
 
     <div class="kpis" id="kpis"></div>
 
-    <div class="charts-grid">
+    <div class="charts-grid" id="chartsGrid">
         <div class="chart-card">
             <div class="chart-title">Inadimplência PF vs PJ (%)</div>
+            <div class="chart-desc">Percentual de operações de crédito com atraso superior a 90 dias, para Pessoas Físicas e Jurídicas. Fonte: BCB/SGS (séries 21082 e 21112).</div>
             <div class="chart-container"><canvas id="chartInad"></canvas></div>
         </div>
         <div class="chart-card">
             <div class="chart-title">Taxa Selic (%)</div>
+            <div class="chart-desc">Taxa básica de juros da economia brasileira, acumulada no mês. Juros mais altos encarecem o crédito e podem elevar a inadimplência. Fonte: BCB/SGS (série 11).</div>
             <div class="chart-container"><canvas id="chartSelic"></canvas></div>
         </div>
         <div class="chart-card">
             <div class="chart-title">Taxa de Desocupação (%)</div>
+            <div class="chart-desc">Percentual da força de trabalho que está desempregada, apurado pela PNAD Contínua trimestral. Maior desemprego reduz a capacidade de pagamento das famílias. Fonte: IBGE.</div>
             <div class="chart-container"><canvas id="chartDesocupacao"></canvas></div>
         </div>
         <div class="chart-card">
             <div class="chart-title">IPCA — Variação Mensal (%)</div>
+            <div class="chart-desc">Índice oficial de inflação do Brasil, que mede a variação de preços ao consumidor. Inflação alta corrói o poder de compra e pressiona o endividamento. Fonte: IBGE.</div>
             <div class="chart-container"><canvas id="chartIPCA"></canvas></div>
         </div>
         <div class="chart-card">
             <div class="chart-title">PIB Mensal (R$ milhões)</div>
+            <div class="chart-desc">Proxy mensal do Produto Interno Bruto, que reflete o nível de atividade econômica. Recessões tendem a aumentar a inadimplência. Fonte: IPEAdata.</div>
             <div class="chart-container"><canvas id="chartPIB"></canvas></div>
         </div>
         <div class="chart-card">
             <div class="chart-title">Rendimento Médio Real (R$)</div>
+            <div class="chart-desc">Rendimento médio real habitual do trabalho principal, deflacionado pelo IPCA. Quanto menor a renda real, maior a dificuldade de honrar compromissos financeiros. Fonte: IPEAdata.</div>
             <div class="chart-container"><canvas id="chartRendimento"></canvas></div>
         </div>
     </div>
 
+    <!-- Scatter plots de correlação -->
+    <div class="section-title">Correlações com Inadimplência PF</div>
+    <p class="section-subtitle">Cada ponto representa um mês. Permite visualizar se existe relação entre os indicadores macroeconômicos e a taxa de inadimplência.</p>
+    <div class="charts-grid">
+        <div class="chart-card">
+            <div class="chart-title">Selic × Inadimplência PF</div>
+            <div class="chart-desc">Verifica se taxas de juros mais altas estão associadas a maiores níveis de inadimplência entre pessoas físicas.</div>
+            <div class="chart-container"><canvas id="scatterSelic"></canvas></div>
+        </div>
+        <div class="chart-card">
+            <div class="chart-title">Desocupação × Inadimplência PF</div>
+            <div class="chart-desc">Avalia se o aumento do desemprego acompanha a elevação da inadimplência, indicando impacto da renda sobre o pagamento de dívidas.</div>
+            <div class="chart-container"><canvas id="scatterDesocupacao"></canvas></div>
+        </div>
+        <div class="chart-card">
+            <div class="chart-title">IPCA × Inadimplência PF</div>
+            <div class="chart-desc">Analisa se meses com inflação mais alta coincidem com maiores taxas de inadimplência, refletindo a perda de poder de compra.</div>
+            <div class="chart-container"><canvas id="scatterIPCA"></canvas></div>
+        </div>
+        <div class="chart-card">
+            <div class="chart-title">Rendimento Real × Inadimplência PF</div>
+            <div class="chart-desc">Investiga a relação entre renda real das famílias e capacidade de pagamento — espera-se correlação negativa.</div>
+            <div class="chart-container"><canvas id="scatterRendimento"></canvas></div>
+        </div>
+    </div>
+
+    <div class="footer">
+        DataInadBR — IFBA Campus Vitória da Conquista — 2026
+    </div>
+
     <script>
     // Configuração global do Chart.js
-    Chart.defaults.color = '#94a3b8';
-    Chart.defaults.borderColor = '#334155';
-    Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, sans-serif';
+    Chart.defaults.color = '#777';
+    Chart.defaults.borderColor = '#222';
+    Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+
+    // Armazena instâncias para hover sincronizado e re-render
+    const lineChartInstances = [];
+    const scatterChartInstances = [];
+    let dadosGlobais = null;
+    let mesesDisponiveis = [];
 
     const SERIES_NOMES = {
         '21082': 'Inadimplência PF',
@@ -152,42 +340,113 @@
         return d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
     }
 
-    function renderKPIs(kpis) {
-        const container = document.getElementById('kpis');
+    function formatarMesLongo(dataISO) {
+        const d = new Date(dataISO);
+        return d.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+    }
 
-        // KPIs principais
+    // Popula os selects de mês
+    function popularFiltrosMes(fct) {
+        mesesDisponiveis = [...new Set(fct.map(r => r.mes_ref))].sort();
+        const selInicio = document.getElementById('filtroInicio');
+        const selFim = document.getElementById('filtroFim');
+
+        mesesDisponiveis.forEach(mes => {
+            const label = formatarMesLongo(mes);
+            selInicio.innerHTML += `<option value="${mes}">${label}</option>`;
+            selFim.innerHTML += `<option value="${mes}">${label}</option>`;
+        });
+
+        // Default: tudo
+        selInicio.value = mesesDisponiveis[0];
+        selFim.value = mesesDisponiveis[mesesDisponiveis.length - 1];
+    }
+
+    function filtrarPorMes(fct, mesInicio, mesFim) {
+        return fct.filter(r => r.mes_ref >= mesInicio && r.mes_ref <= mesFim);
+    }
+
+    function renderKPIs(fct) {
+        const container = document.getElementById('kpis');
+        container.innerHTML = '';
+
         const destaques = [
-            { serie: '21082', label: 'Inadimplência PF', sufixo: '%', cor: 'red' },
-            { serie: '21112', label: 'Inadimplência PJ', sufixo: '%', cor: 'red' },
-            { serie: '11', label: 'Taxa Selic', sufixo: '%', cor: 'blue' },
-            { campo: 'taxa_desocupacao', label: 'Desocupação', sufixo: '%', cor: 'yellow' },
-            { campo: 'ipca_variacao', label: 'IPCA Mensal', sufixo: '%', cor: 'purple' },
+            { serie: '21082', label: 'Inadimplência PF', sufixo: '%', cor: 'red', desc: 'Crédito PF com atraso > 90 dias' },
+            { serie: '21112', label: 'Inadimplência PJ', sufixo: '%', cor: 'red', desc: 'Crédito PJ com atraso > 90 dias' },
+            { serie: '11', label: 'Taxa Selic', sufixo: '%', cor: 'green', desc: 'Taxa básica de juros acumulada no mês' },
+            { campo: 'taxa_desocupacao', label: 'Desocupação', sufixo: '%', cor: 'yellow', desc: 'Percentual da força de trabalho desempregada' },
+            { campo: 'ipca_variacao', label: 'IPCA Mensal', sufixo: '%', cor: 'purple', desc: 'Variação mensal do índice de preços' },
         ];
 
-        const mesRef = kpis[0]?.mes_ref;
-        const refLabel = mesRef ? new Date(mesRef).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }) : '';
-
         destaques.forEach(d => {
-            let valor;
+            let valor, mesRef;
             if (d.serie) {
-                const reg = kpis.find(k => k.serie === d.serie);
-                valor = reg?.valor_indicador;
+                const regs = fct
+                    .filter(r => r.serie === d.serie)
+                    .sort((a, b) => b.mes_ref.localeCompare(a.mes_ref));
+                valor = regs[0]?.valor_indicador;
+                mesRef = regs[0]?.mes_ref;
             } else {
-                valor = kpis[0]?.[d.campo];
+                const regs = fct
+                    .filter(r => r[d.campo] != null)
+                    .sort((a, b) => b.mes_ref.localeCompare(a.mes_ref));
+                const mesUnico = regs[0]?.mes_ref;
+                valor = regs[0]?.[d.campo];
+                mesRef = mesUnico;
             }
+
+            const refLabel = mesRef ? formatarMesLongo(mesRef) : '';
 
             container.innerHTML += `
                 <div class="kpi-card">
                     <div class="kpi-label">${d.label}</div>
                     <div class="kpi-value color-${d.cor}">${formatarValor(valor)}${d.sufixo}</div>
                     <div class="kpi-ref">${refLabel}</div>
+                    <div class="kpi-desc">${d.desc}</div>
                 </div>
             `;
         });
     }
 
+    // Plugin de hover sincronizado
+    const syncHoverPlugin = {
+        id: 'syncHover',
+        afterEvent(chart, args) {
+            const evt = args.event;
+            if (evt.type === 'mousemove') {
+                const elements = chart.getElementsAtEventForMode(evt, 'index', { intersect: false }, false);
+                if (elements.length > 0) {
+                    const dataIndex = elements[0].index;
+                    const label = chart.data.labels[dataIndex];
+                    lineChartInstances.forEach(other => {
+                        if (other === chart) return;
+                        const matchIndex = other.data.labels.indexOf(label);
+                        if (matchIndex >= 0) {
+                            other.tooltip.setActiveElements(
+                                other.data.datasets.map((ds, dsIndex) => ({ datasetIndex: dsIndex, index: matchIndex })),
+                                { x: 0, y: 0 }
+                            );
+                            other.setActiveElements(
+                                other.data.datasets.map((ds, dsIndex) => ({ datasetIndex: dsIndex, index: matchIndex }))
+                            );
+                            other.update('none');
+                        }
+                    });
+                }
+            }
+            if (evt.type === 'mouseout') {
+                lineChartInstances.forEach(other => {
+                    if (other === chart) return;
+                    other.tooltip.setActiveElements([], { x: 0, y: 0 });
+                    other.setActiveElements([]);
+                    other.update('none');
+                });
+            }
+        }
+    };
+
     function criarGraficoLinha(canvasId, labels, datasets) {
-        new Chart(document.getElementById(canvasId), {
+        const chart = new Chart(document.getElementById(canvasId), {
             type: 'line',
             data: { labels, datasets },
             options: {
@@ -199,9 +458,52 @@
                     x: { ticks: { maxTicksAutoSkip: true, maxRotation: 0 } },
                     y: { beginAtZero: false }
                 },
-                elements: { point: { radius: 0 }, line: { tension: 0.3, borderWidth: 2 } }
+                elements: { point: { radius: 0, hoverRadius: 5 }, line: { tension: 0.3, borderWidth: 2 } }
+            },
+            plugins: [syncHoverPlugin]
+        });
+        lineChartInstances.push(chart);
+        return chart;
+    }
+
+    function criarScatterPlot(canvasId, dados, labelX, labelY, cor) {
+        const chart = new Chart(document.getElementById(canvasId), {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    data: dados,
+                    backgroundColor: cor + '99',
+                    borderColor: cor,
+                    borderWidth: 1,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => `${labelX}: ${formatarValor(ctx.parsed.x)} | ${labelY}: ${formatarValor(ctx.parsed.y)}`
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        title: { display: true, text: labelX, color: '#777' },
+                        ticks: { color: '#777' }
+                    },
+                    y: {
+                        title: { display: true, text: labelY, color: '#777' },
+                        ticks: { color: '#777' }
+                    }
+                }
             }
         });
+        scatterChartInstances.push(chart);
+        return chart;
     }
 
     function filtrarSerie(fct, serie) {
@@ -211,7 +513,9 @@
     }
 
     function renderCharts(fct) {
-        // Labels de meses (usa série 21082 como referência)
+        lineChartInstances.forEach(c => c.destroy());
+        lineChartInstances.length = 0;
+
         const pf = filtrarSerie(fct, '21082');
         const pj = filtrarSerie(fct, '21112');
         const selic = filtrarSerie(fct, '11');
@@ -219,41 +523,120 @@
 
         // 1. Inadimplência PF vs PJ
         criarGraficoLinha('chartInad', labels, [
-            { label: 'PF', data: pf.map(r => r.valor_indicador), borderColor: '#f87171', backgroundColor: '#f8717133' },
-            { label: 'PJ', data: pj.map(r => r.valor_indicador), borderColor: '#60a5fa', backgroundColor: '#60a5fa33' }
+            { label: 'PF', data: pf.map(r => r.valor_indicador), borderColor: '#c41e3a', backgroundColor: '#c41e3a33' },
+            { label: 'PJ', data: pj.map(r => r.valor_indicador), borderColor: '#2a78d6', backgroundColor: '#2a78d633' }
         ]);
 
         // 2. Selic
         const selicLabels = selic.map(r => formatarMes(r.mes_ref));
         criarGraficoLinha('chartSelic', selicLabels, [
-            { label: 'Selic', data: selic.map(r => r.valor_indicador), borderColor: '#60a5fa', backgroundColor: '#60a5fa33' }
+            { label: 'Selic', data: selic.map(r => r.valor_indicador), borderColor: '#1b6b3a', backgroundColor: '#1b6b3a33' }
         ]);
 
         // 3. Desocupação
         criarGraficoLinha('chartDesocupacao', labels, [
-            { label: 'Desocupação', data: pf.map(r => r.taxa_desocupacao), borderColor: '#fbbf24', backgroundColor: '#fbbf2433' }
+            { label: 'Desocupação', data: pf.map(r => r.taxa_desocupacao), borderColor: '#d4a017', backgroundColor: '#d4a01733' }
         ]);
 
         // 4. IPCA
         criarGraficoLinha('chartIPCA', labels, [
-            { label: 'IPCA', data: pf.map(r => r.ipca_variacao), borderColor: '#a78bfa', backgroundColor: '#a78bfa33' }
+            { label: 'IPCA', data: pf.map(r => r.ipca_variacao), borderColor: '#8b6fc0', backgroundColor: '#8b6fc033' }
         ]);
 
         // 5. PIB
         criarGraficoLinha('chartPIB', labels, [
-            { label: 'PIB', data: pf.map(r => r.pib_mensal), borderColor: '#4ade80', backgroundColor: '#4ade8033' }
+            { label: 'PIB', data: pf.map(r => r.pib_mensal), borderColor: '#2a78d6', backgroundColor: '#2a78d633' }
         ]);
 
         // 6. Rendimento
         criarGraficoLinha('chartRendimento', labels, [
-            { label: 'Rendimento Real', data: pf.map(r => r.rendimento_real), borderColor: '#fb923c', backgroundColor: '#fb923c33' }
+            { label: 'Rendimento Real', data: pf.map(r => r.rendimento_real), borderColor: '#e68a3a', backgroundColor: '#e68a3a33' }
         ]);
     }
 
+    function renderScatterPlots(fct) {
+        scatterChartInstances.forEach(c => c.destroy());
+        scatterChartInstances.length = 0;
+
+        const pf = filtrarSerie(fct, '21082');
+        const selic = filtrarSerie(fct, '11');
+
+        const selicMap = {};
+        selic.forEach(r => { selicMap[r.mes_ref] = r.valor_indicador; });
+
+        // Selic × Inadimplência PF
+        const dadosSelic = pf
+            .filter(r => selicMap[r.mes_ref] != null)
+            .map(r => ({ x: selicMap[r.mes_ref], y: r.valor_indicador }));
+        criarScatterPlot('scatterSelic', dadosSelic, 'Selic (%)', 'Inadimplência PF (%)', '#1b6b3a');
+
+        // Desocupação × Inadimplência PF
+        const dadosDesoc = pf
+            .filter(r => r.taxa_desocupacao != null)
+            .map(r => ({ x: r.taxa_desocupacao, y: r.valor_indicador }));
+        criarScatterPlot('scatterDesocupacao', dadosDesoc, 'Desocupação (%)', 'Inadimplência PF (%)', '#d4a017');
+
+        // IPCA × Inadimplência PF
+        const dadosIPCA = pf
+            .filter(r => r.ipca_variacao != null)
+            .map(r => ({ x: r.ipca_variacao, y: r.valor_indicador }));
+        criarScatterPlot('scatterIPCA', dadosIPCA, 'IPCA (%)', 'Inadimplência PF (%)', '#8b6fc0');
+
+        // Rendimento × Inadimplência PF
+        const dadosRend = pf
+            .filter(r => r.rendimento_real != null)
+            .map(r => ({ x: r.rendimento_real, y: r.valor_indicador }));
+        criarScatterPlot('scatterRendimento', dadosRend, 'Rendimento Real (R$)', 'Inadimplência PF (%)', '#e68a3a');
+    }
+
+    // Aplica filtro global
+    function aplicarFiltro() {
+        const mesInicio = document.getElementById('filtroInicio').value;
+        const mesFim = document.getElementById('filtroFim').value;
+        const fctFiltrado = filtrarPorMes(dadosGlobais.fct, mesInicio, mesFim);
+        renderKPIs(fctFiltrado);
+        renderCharts(fctFiltrado);
+        renderScatterPlots(fctFiltrado);
+    }
+
+    // Botão Filtrar
+    document.getElementById('btnFiltrar').addEventListener('click', () => {
+        document.querySelectorAll('.quick-btn').forEach(b => b.classList.remove('active'));
+        aplicarFiltro();
+    });
+
+    // Botões rápidos
+    document.querySelectorAll('.quick-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.quick-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const anos = parseInt(btn.dataset.years);
+            const selInicio = document.getElementById('filtroInicio');
+            const selFim = document.getElementById('filtroFim');
+
+            if (anos === 0) {
+                selInicio.value = mesesDisponiveis[0];
+                selFim.value = mesesDisponiveis[mesesDisponiveis.length - 1];
+            } else {
+                const maxDate = new Date(mesesDisponiveis[mesesDisponiveis.length - 1]);
+                const corte = new Date(maxDate);
+                corte.setFullYear(corte.getFullYear() - anos);
+                const corteISO = corte.toISOString().slice(0, 10);
+                const mesCorte = mesesDisponiveis.find(m => m >= corteISO) || mesesDisponiveis[0];
+                selInicio.value = mesCorte;
+                selFim.value = mesesDisponiveis[mesesDisponiveis.length - 1];
+            }
+
+            aplicarFiltro();
+        });
+    });
+
     // Inicializar
     carregarDados().then(({ fct, kpis }) => {
-        renderKPIs(kpis);
-        renderCharts(fct);
+        dadosGlobais = { fct, kpis };
+        popularFiltrosMes(fct);
+        aplicarFiltro();
     });
     </script>
 </body>

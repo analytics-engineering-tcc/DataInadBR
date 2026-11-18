@@ -1,5 +1,6 @@
 with fonte as (
-    select * from {{ source('bronze', 'bcb_inadimplencia') }}
+    select distinct data, serie, descricao, valor
+    from {{ source('bronze', 'bcb_inadimplencia') }}
 )
 
 select

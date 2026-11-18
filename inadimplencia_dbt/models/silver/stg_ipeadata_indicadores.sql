@@ -1,5 +1,6 @@
 with fonte as (
-    select * from {{ source('bronze', 'ipeadata_indicadores') }}
+    select distinct data, indicador, fonte, valor
+    from {{ source('bronze', 'ipeadata_indicadores') }}
 )
 
 select
