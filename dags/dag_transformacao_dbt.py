@@ -3,8 +3,8 @@ from pendulum import datetime
 import subprocess
 from pathlib import Path
 
-# Caminhos do projeto
-PROJECT_DIR = Path.home() / "Desktop" / "DataInadBR"
+# Caminhos do projeto — detecta automaticamente a partir da localização da DAG
+PROJECT_DIR = Path(__file__).resolve().parent.parent
 DBT_DIR = PROJECT_DIR / "inadimplencia_dbt"
 DBT_BIN = PROJECT_DIR / "venv" / "bin" / "dbt"
 PYTHON_BIN = PROJECT_DIR / "venv" / "bin" / "python"
@@ -55,6 +55,7 @@ def transformacao_dbt():
         """Exporta tabelas Gold para JSONs consumidos pelo dashboard"""
         result = subprocess.run(
             [str(PYTHON_BIN), str(PROJECT_DIR / "scripts" / "exportar_gold_json.py")],
+            cwd=str(PROJECT_DIR),
             capture_output=True,
             text=True,
         )
