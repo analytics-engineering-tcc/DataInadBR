@@ -291,10 +291,35 @@ O projeto inclui uma máquina virtual Ubuntu preparada para execução completa 
 
 ### Passo a passo para rodar na VM
 
-#### 1. Abrir a VM
+#### 1. Importar e abrir a VM
 
-- **macOS:** Abra o UTM e importe o arquivo `DataInadBR.utm`. Inicie a VM.
-- **Linux/Windows:** Use o QEMU para importar a imagem.
+**macOS (UTM):**
+1. Instale o [UTM](https://mac.getutm.app/) (gratuito na App Store ou site oficial)
+2. Faça download do arquivo `DataInadBR.utm` (disponibilizado via Google Drive)
+3. Dê duplo clique no arquivo `.utm` — o UTM importa automaticamente
+4. Clique em **▶** para iniciar a VM
+5. Aguarde o boot até a tela de login (usuário: `tcc`, senha: `tcc123`)
+
+**Linux (QEMU):**
+1. Instale o QEMU: `sudo apt install qemu-system-aarch64`
+2. Extraia o conteúdo do arquivo `.utm` (é um pacote com as imagens de disco dentro)
+3. Localize o arquivo `.qcow2` dentro da pasta extraída
+4. Inicie com:
+```bash
+qemu-system-aarch64 \
+  -machine virt \
+  -cpu host \
+  -accel kvm \
+  -m 2048 \
+  -drive file=DataInadBR.qcow2,format=qcow2 \
+  -nographic
+```
+
+**Windows (QEMU):**
+1. Instale o [QEMU para Windows](https://qemu.weilnetz.de/w64/)
+2. Siga os mesmos passos do Linux, executando no terminal (PowerShell ou CMD)
+
+> **Nota:** O professor orientador utiliza Linux, portanto o QEMU é o caminho recomendado para a banca.
 
 #### 2. Acessar via SSH (do computador host)
 
