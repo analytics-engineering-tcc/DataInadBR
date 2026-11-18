@@ -38,10 +38,12 @@ def rodar_script(nome_script: str):
     """Executa um script Python da pasta scripts/ usando o Python do venv."""
     caminho = Path(__file__).resolve().parent.parent / "scripts" / nome_script
     python_venv = Path(__file__).resolve().parent.parent / "venv" / "bin" / "python"
+    projeto_dir = Path(__file__).resolve().parent.parent
     resultado = subprocess.run(
         [str(python_venv), str(caminho)],
         capture_output=True,
         text=True,
+        cwd=str(projeto_dir),
     )
     if resultado.returncode != 0:
         raise RuntimeError(

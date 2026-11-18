@@ -3,7 +3,7 @@ import pandas as pd
 from sqlalchemy import create_engine
 from dotenv import load_dotenv
 import os
-from datetime import date
+from datetime import date, datetime, timedelta
 
 load_dotenv()
 
@@ -11,12 +11,35 @@ engine = create_engine(
     f"postgresql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
 )
 
+def gerar_janelas(inicio_str, fim_str, max_anos=9):
+    """Divide o intervalo em janelas de no máximo max_anos para respeitar o limite da API BCB."""
+    inicio = datetime.strptime(inicio_str, "%d/%m/%Y")
+    fim = datetime.strptime(fim_str, "%d/%m/%Y")
+    janelas = []
+    cursor = inicio
+    while cursor < fim:
+        limite = cursor.replace(year=cursor.year + max_anos)
+        if limite > fim:
+            limite = fim
+        janelas.append((cursor.strftime("%d/%m/%Y"), limite.strftime("%d/%m/%Y")))
+        cursor = limite + timedelta(days=1)
+    return janelas
+
 def coleta_bcb(serie, descricao, inicio, fim):
     print(f"Coletando série {serie} — {descricao}...")
     url = f"https://api.bcb.gov.br/dados/serie/bcdata.sgs.{serie}/dados"
-    params = {"formato": "json", "dataInicial": inicio, "dataFinal": fim}
-    r = requests.get(url, params=params)
-    df = pd.DataFrame(r.json())
+    janelas = gerar_janelas(inicio, fim)
+    dados = []
+    for ini, f in janelas:
+        print(f"  Janela: {ini} a {f}")
+        params = {"formato": "json", "dataInicial": ini, "dataFinal": f}
+        r = requests.get(url, params=params)
+        resposta = r.json()
+        if isinstance(resposta, list):
+            dados.extend(resposta)
+        else:
+            print(f"  Aviso: resposta inesperada para janela {ini}-{f}: {resposta}")
+    df = pd.DataFrame(dados)
     df["data"]      = pd.to_datetime(df["data"], dayfirst=True)
     df["valor"]     = pd.to_numeric(df["valor"], errors="coerce")
     df["serie"]     = str(serie)
