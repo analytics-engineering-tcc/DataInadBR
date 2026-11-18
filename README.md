@@ -193,7 +193,13 @@ export DB_USER=tcc DB_PASSWORD=tcc123 DB_HOST=localhost DB_PORT=5432 DB_NAME=ina
 airflow standalone
 ```
 
-Acesse `http://localhost:8080`, faça login, despause as DAGs e acione:
+Acesse `http://localhost:8080` (Airflow). Para obter a senha de login:
+
+```bash
+cat ~/airflow/simple_auth_manager_passwords.json.generated
+```
+
+O usuário padrão é `admin`. Despause as DAGs e acione:
 1. **coleta_bronze** — coleta os dados das APIs
 2. **transformacao_dbt** — transforma e exporta para o dashboard
 
@@ -220,10 +226,12 @@ python scripts/exportar_gold_json.py
 
 ```bash
 cd dashboard
-python3 -m http.server 8080
+python3 -m http.server 8081
 ```
 
-Acesse `http://localhost:8080` no navegador.
+Acesse `http://localhost:8081` no navegador.
+
+> **Nota:** O Airflow usa a porta 8080, por isso o dashboard é servido na porta 8081. Se o Airflow não estiver rodando, pode usar a porta 8080.
 
 ---
 
@@ -263,17 +271,108 @@ Construído com HTML puro, JavaScript e Chart.js 4.4.4, sem dependências de ser
 
 ---
 
-## Ambiente de Desenvolvimento (VM)
+## Execução na VM (Máquina Virtual)
 
-O projeto inclui uma máquina virtual Ubuntu preparada para execução completa do pipeline:
+O projeto inclui uma máquina virtual Ubuntu preparada para execução completa do pipeline, sem necessidade de instalar nada além do virtualizador.
 
-- **Sistema:** Ubuntu 26.04 LTS (aarch64)
-- **Virtualização:** UTM (macOS) / QEMU (Linux/Windows)
-- **Hostname:** `datainadbr`
-- **Usuário:** `tcc`
-- **Projeto:** `~/DataInadBR`
+### Especificações da VM
 
-A VM contém PostgreSQL 15 nativo, Python 3.14, Airflow 3.4.0, dbt Core e todas as dependências configuradas.
+| Item | Detalhe |
+|------|---------|
+| Sistema | Ubuntu 26.04 LTS (aarch64) |
+| Virtualização | UTM (macOS) / QEMU (Linux/Windows) |
+| Hostname | `datainadbr` |
+| Usuário | `tcc` / Senha: `tcc123` |
+| Projeto | `~/DataInadBR` |
+| PostgreSQL | 15 (nativo, já configurado) |
+| Python | 3.14 |
+| Airflow | 3.4.0 |
+| dbt Core | dbt-postgres instalado |
+
+### Passo a passo para rodar na VM
+
+#### 1. Abrir a VM
+
+- **macOS:** Abra o UTM e importe o arquivo `DataInadBR.utm`. Inicie a VM.
+- **Linux/Windows:** Use o QEMU para importar a imagem.
+
+#### 2. Acessar via SSH (do computador host)
+
+```bash
+ssh tcc@192.168.64.2
+```
+
+Senha: `tcc123`
+
+> **Nota:** O IP pode variar. Caso não conecte, verifique o IP da VM com `ip addr` diretamente no terminal da VM.
+
+#### 3. Ativar o ambiente e variáveis
+
+```bash
+cd ~/DataInadBR
+source venv/bin/activate
+export DB_USER=tcc DB_PASSWORD=tcc123 DB_HOST=localhost DB_PORT=5432 DB_NAME=inadimplencia
+```
+
+#### 4. Verificar que o PostgreSQL está rodando
+
+```bash
+sudo systemctl status postgresql
+```
+
+Se não estiver ativo:
+
+```bash
+sudo systemctl start postgresql
+```
+
+#### 5. Criar pasta de dados (se necessário)
+
+```bash
+mkdir -p data/bronze
+```
+
+#### 6. Iniciar o Airflow
+
+```bash
+airflow standalone
+```
+
+#### 7. Obter a senha do Airflow
+
+Em outro terminal SSH (`ssh tcc@192.168.64.2`):
+
+```bash
+cat ~/airflow/simple_auth_manager_passwords.json.generated
+```
+
+#### 8. Acessar o Airflow no navegador (do host)
+
+Acesse `http://192.168.64.2:8080` e faça login com usuário `admin` e a senha obtida no passo anterior.
+
+#### 9. Executar o pipeline
+
+1. Despause a DAG **coleta_bronze** (toggle à esquerda do nome)
+2. Clique em **▶ Acionar** para disparar a coleta
+3. Aguarde todas as 4 tarefas ficarem verdes (≈ 3-5 minutos)
+4. Despause a DAG **transformacao_dbt**
+5. Clique em **▶ Acionar** para disparar a transformação
+6. Aguarde as 3 tarefas ficarem verdes (dbt run → dbt test → exportar JSON)
+
+#### 10. Visualizar o dashboard
+
+Em outro terminal SSH:
+
+```bash
+cd ~/DataInadBR/dashboard
+python3 -m http.server 8081
+```
+
+Acesse `http://192.168.64.2:8081` no navegador do host.
+
+> **Resumo de portas na VM:**
+> - `8080` — Airflow (interface web)
+> - `8081` — Dashboard (visualização dos dados)
 
 ---
 
