@@ -293,9 +293,11 @@ O projeto inclui uma máquina virtual Ubuntu preparada para execução completa 
 
 #### 1. Importar e abrir a VM
 
+**Download da VM:** [Google Drive — DataInadBR.utm](https://drive.google.com/drive/folders/1kGMpnztOLPdC7dXdl8_oT8vF97rPeh80?usp=drive_link)
+
 **macOS (UTM):**
 1. Instale o [UTM](https://mac.getutm.app/) (gratuito na App Store ou site oficial)
-2. Faça download do arquivo `DataInadBR.utm` (disponibilizado via Google Drive)
+2. Faça download do arquivo `DataInadBR.utm` pelo link acima
 3. Dê duplo clique no arquivo `.utm` — o UTM importa automaticamente
 4. Clique em **▶** para iniciar a VM
 5. Aguarde o boot até a tela de login (usuário: `tcc`, senha: `tcc123`)
